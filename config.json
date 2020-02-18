@@ -13,12 +13,12 @@
     },
     {
       "file": "scripts/p1-makefile.sh",
-      "deduct": 5,
+      "deduct": 10,
       "comment": "makefile incorrect"
     },
     {
       "file": "scripts/p1-compilation.sh",
-      "deduct": 100,
+      "deduct": 50,
       "comment": "program cannot compile"
     },
     {
@@ -28,62 +28,62 @@
     },
     {
       "file": "scripts/p1-unit1.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::type() returns a wrong value"
     },
     {
       "file": "scripts/p1-unit2.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::maxHours() returns a wrong value"
     },
     {
       "file": "scripts/p1-unit3.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::numEngines() returns a wrong value"
     },
     {
       "file": "scripts/p1-unit4.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::name() returns a wrong value"
     },
     {
       "file": "scripts/p1-unit5.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::setHours() should not print"
     },
     {
       "file": "scripts/p1-unit6.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::setHours() should be able to assign engines in any order"
     },
     {
       "file": "scripts/p1-unit7.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::print() prints a wrong value"
     },
     {
       "file": "scripts/p1-unit8.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "Aircraft::printSchedule() returns a wrong value"
     },
     {
       "file": "scripts/p1-test1.sh",
-      "deduct": 10,
+      "deduct": 15,
       "comment": "test1 incompatible"
     },
     {
       "file": "scripts/p1-test2.sh",
-      "deduct": 10,
+      "deduct": 15,
       "comment": "test2 incompatible"
     },
     {
       "file": "scripts/p1-test3.sh",
-      "deduct": 10,
+      "deduct": 15,
       "comment": "test3 incompatible"
     },
     {
       "file": "scripts/p1-test4.sh",
-      "deduct": 10,
+      "deduct": 15,
       "comment": "test4 incompatible"
     }
   ],

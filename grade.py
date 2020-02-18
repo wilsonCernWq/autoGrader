@@ -176,7 +176,7 @@ def process_job(task, person):
         # there is a default deduction rule
         deduct = int(task.get('deduct'))
         comment = task.get('comment')
-        print_warning(f'Default rubic   = -{deduct}')
+        print_warning(f'Default rubric  = -{deduct}')
         print_warning(f'        comment = {comment}')
 
         # check if we should apply it
