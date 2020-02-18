@@ -1,12 +1,18 @@
 {
-    "timeStamp": "1580630340",
-    "tarFileName": "hw1p2.tar",
+    "due-time-stamp": "1581897600",
+    "directory-root": "/home/qwuad/grading/hw2",
+    "directory-work": "/home/qwuad/grading/hw2p1-work",
+    "output-file"   : "hw2p1-progress.json",
+    "tarball-name"  : "hw2p1.tar",
+
+    "max-score": 80,
+    
     "execFileName": "calculator",
     "isMultiFileInput": true,
     "testInputFileName": "",
     "testOutputFileName": "finalTest.out",
     "multipleInFile": 9,
-    "maxScore": 80,
+
     "deductScore": 5,
     "resultsFileName": "StudentIDScores2.txt",
     "verboseResultFileName": "results2.txt"
