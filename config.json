@@ -7,28 +7,39 @@
     "tarball": "hw2p1.tar",
     "scripts": [{
 	"file": "scripts/check-uncompress.sh",
-	"deduct": 1
+	"deduct": 1,
+	"comment": "cannot decompress your tarball" 
     }, {
 	"file": "scripts/check-makefile-p1.sh",
-	"deduct": 1
+	"deduct": 1,
+	"comment": "invalid makefile" 
     }, {
 	"file": "scripts/check-compilation-p1.sh",
-	"deduct": 10
+	"deduct": 100,
+	"comment": "program cannot compile"
     }, {
 	"file": "scripts/copy-tests-p1.sh",
 	"deduct": 0
     }, {
 	"file": "scripts/check-test1.sh",
-	"deduct": 5
+	"deduct": 5,
+	"comment": "test1 incompatible"
     }, {
 	"file": "scripts/check-test2.sh",
-	"deduct": 5
+	"deduct": 5,
+	"comment": "test2 incompatible"
     }, {
 	"file": "scripts/check-test3.sh",
-	"deduct": 5
+	"deduct": 5,
+	"comment": "test3 incompatible"
     }, {
 	"file": "scripts/check-test4.sh",
+	"deduct": 5,
+	"comment": "test4 incompatible"
+    }],
+    "rubrics": [{
+	"comment": "typo in some strings",
 	"deduct": 5
     }],
-    "max-score": 80    
+    "max-score": 100
 }
