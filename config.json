@@ -1,45 +1,61 @@
 {
-    "due-time-stamp": "1582001883",
-    "dir-root": "/home/qwuad/grading/hw2",
-    "dir-submissions": "submissions",
-    "dir-work"       : "work/p1",
-    "output" : "hw2p1-progress.json",
-    "tarball": "hw2p1.tar",
-    "scripts": [{
-	"file": "scripts/check-uncompress.sh",
-	"deduct": 1,
-	"comment": "cannot decompress your tarball" 
-    }, {
-	"file": "scripts/check-makefile-p1.sh",
-	"deduct": 1,
-	"comment": "invalid makefile" 
-    }, {
-	"file": "scripts/check-compilation-p1.sh",
-	"deduct": 100,
-	"comment": "program cannot compile"
-    }, {
-	"file": "scripts/copy-tests-p1.sh",
-	"deduct": 0
-    }, {
-	"file": "scripts/check-test1.sh",
-	"deduct": 5,
-	"comment": "test1 incompatible"
-    }, {
-	"file": "scripts/check-test2.sh",
-	"deduct": 5,
-	"comment": "test2 incompatible"
-    }, {
-	"file": "scripts/check-test3.sh",
-	"deduct": 5,
-	"comment": "test3 incompatible"
-    }, {
-	"file": "scripts/check-test4.sh",
-	"deduct": 5,
-	"comment": "test4 incompatible"
-    }],
-    "rubrics": [{
-	"comment": "typo in some strings",
-	"deduct": 5
-    }],
-    "max-score": 100
+  "due-time-stamp": "1582012800",
+  "dir-root": "/home/qadwu/Work/teach/hw2",
+  "dir-submissions": "submissions",
+  "dir-work": "work/p1",
+  "output": "hw2p1-progress.json",
+  "tarball": "hw2p1.tar",
+  "scripts": [
+    {
+      "file": "scripts/check-uncompress.sh",
+      "deduct": 5,
+      "comment": "cannot decompress your tarball"
+    },
+    {
+      "file": "scripts/check-makefile-p1.sh",
+      "deduct": 5,
+      "comment": "invalid makefile"
+    },
+    {
+      "file": "scripts/check-compilation-p1.sh",
+      "deduct": 100,
+      "comment": "program cannot compile"
+    },
+    {
+      "file": "scripts/check-compilation-p1.sh",
+      "deduct": 5,
+      "comment": "program cannot compile"
+    },
+    {
+      "file": "scripts/copy-tests-p1.sh",
+      "deduct": 0
+    },
+    {
+      "file": "scripts/check-test1.sh",
+      "deduct": 10,
+      "comment": "test1 incompatible"
+    },
+    {
+      "file": "scripts/check-test2.sh",
+      "deduct": 10,
+      "comment": "test2 incompatible"
+    },
+    {
+      "file": "scripts/check-test3.sh",
+      "deduct": 10,
+      "comment": "test3 incompatible"
+    },
+    {
+      "file": "scripts/check-test4.sh",
+      "deduct": 10,
+      "comment": "test4 incompatible"
+    }
+  ],
+  "rubrics": [
+    {
+      "comment": "typo in some strings",
+      "deduct": 5
+    }
+  ],
+  "max-score": 100
 }
