@@ -1,96 +1,149 @@
 import sys, os, time, platform, json, shutil
 from subprocess import Popen, PIPE
 
-# checking if the submission is over-due
-def time_check(config, student, log):
+def record_message(arr, msg):
+    arr.append(msg)
+    print(msg)
 
-    if platform.system() ==  'Darwin':
-        commands = f'''
-        cd {config.get('directory-root')}/{s}
-        stat -f "%m" -t "%Y" {config.get('tarFileName')}
+    
+def time_check(config, person): # checking if the submission is over-due
+
+    _due     = int(config.get('due-time-stamp'))
+    _tot     = int(config.get('max-score')) 
+    _tarball = config.get('tarball')
+    _workdir = os.path.join(config.get('dir-root'),
+                            config.get('dir-submissions'),
+                            person)
+    
+    if platform.system() == 'Darwin':
+        _cmd = f'''
+        cd {_workdir}
+        stat -f "%m" -t "%Y" {_tarball}
         '''
     else:
-        commands = f'''
-        cd {config.get('directory-root')}/{s}
-        stat -c "%Y" {config.get('tarball-name')}
+        _cmd = f'''
+        cd {_workdir}
+        stat -c "%Y" {_tarball}
         '''
-    
-    total = config.get('max-score')
 
-    proc = Popen('/bin/bash', stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-    out, err = proc.communicate(commands.encode('utf-8'))
-    outs = out.decode('utf-8').strip().split('\n')
-    errs = err.decode('utf-8').split('\n')
+    _bash  = Popen('/bin/bash', stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)        
+    _o, _e = _bash.communicate(_cmd.encode('utf-8'))
+    _outs  = _o.decode('utf-8').strip().split('\n')
+    _errs  = _e.decode('utf-8').split('\n')
 
-    due = config.get('due-time-stamp')
-    hour = 3600
+    _t = int(_outs[0])
+    _hour = 3600
     
     try: # can update the rubric manually here
-        if int(outs[0]) <= int(due)+hour*0:
-            total = total
-            errs.append('on time')
-            print("On Time")
-        elif int(outs[0]) > int(due)+hour*0 and int(outs[0]) <= int(due)+hour*1:
-            total *= 0.9
-            errs.append('late by 0+ hour')
-            print("late by 0+ hour")
-        elif int(outs[0]) > int(due)+hour*1 and int(outs[0]) <= int(due)+hour*2:
-            total *= 0.8
-            errs.append('late by 1+ hours')
-            print("late by 1+ hour")
-        elif int(outs[0]) > int(due)+hour*2 and int(outs[0]) <= int(due)+hour*3:
-            total *= 0.7
-            errs.append('late by 2+ hours')
-            print("late by 2+ hour")
-        elif int(outs[0]) > int(due)+hour*3 and int(outs[0]) <= int(due)+hour*4:
-            total *= 0.6
-            errs.append('late by 3+ hours')
-            print("late by 3+ hour")
+        print(_t)
+        if _t <= _due+_hour*0:
+            _tot = _tot
+            record_message(_errs, 'on time')
+        elif _t > _due + _hour*0 and _t <= _due + _hour*1:
+            _tot *= 0.9
+            record_message(_errs, 'late by 0+ hour')
+        elif _t > _due + _hour*1 and _t <= _due + _hour*2:
+            _tot *= 0.8
+            record_message(_errs, 'late by 1+ hours')
+        elif _t > _due + _hour*2 and _t <= _due + _hour*3:
+            _tot *= 0.7
+            record_message(_errs, 'late by 2+ hours')
+        elif _t > _due + _hour*3 and _t <= _due + _hour*4:
+            _tot *= 0.6
+            record_message(_errs, 'late by 3+ hours')
         else:
-            total *= 0
-            errs.append('late by 4+ hours')
-            print("late by 4+ hour")
+            _tot *= 0
+            record_message(_errs, 'late by 4+ hours')
     except:
-        print("Is it exception")
-        pass
+        alert('Is it exception')
+        raise
+    
+    ret = {}
+    ret['adjusted-max-score'] = int(_tot)
+    ret['timestamp'] = _t
+    ret['messages'] = _errs
+    return ret
 
-    total = int(total)
-        
-    log['submission-time'] = outs[0]
-    log['submission-total'] = total
-    log['log'] = errs
 
-    return total
-
-def reset_workdir(config, student, logfilename):
-    # the student has been graded, skip
-    if os.path.exists(logfilename):
+def reset_workdir(config, person, logfilename):
+    
+    if os.path.exists(logfilename): # the student has been graded, skip
         return False
     else: # reset the directory
-        _dir = os.path.join(config.get('directory-work'), student)
-        _src = os.path.join(config.get('directory-root'), student, config.get('tarball-name'))
-        _dst = os.path.join(_dir, config.get('tarball-name'))
+        _dir = os.path.join(config.get('dir-root'),
+                            config.get('dir-work'),
+                            person)
+        _src = os.path.join(config.get('dir-root'),
+                            config.get('dir-submissions'),
+                            person,
+                            config.get('tarball'))
+        _dst = os.path.join(_dir, config.get('tarball'))
         try:
             shutil.rmtree(_dir, True) # delete the old one
             os.mkdir(_dir)            # recreate the new one
             shutil.copy(_src, _dst)
         except OSError:
-            print("Resetting the directory %s failed" % _dir)
+            alert(f'Resetting the directory {_dir} failed')
             raise
         else:
-            print("Successfully reset the directory %s" % _dir)
+            print(f'>> Successfully reset the directory {_dir}')
         return True
 
-# TODO
-# should be able to resume work if possible
-# save students' score one by one in separate, editable file
-# collect grades in the final step
+
+def question(msg):
+    return input('%s%s%s' % ('\033[91m', msg, '\033[0m'))
+
+
+def alert(msg):
+    print('%s%s%s' % ('\033[91m', msg, '\033[0m'))
+
+    
+def message_filter(x): # filter function that removes empty strings
+    if len(x) == 0:
+        return False
+    if 'Warning: File \'Makefile\' has modification time' in x:
+        return False
+    if 'warning:  Clock skew detected.' in x:
+        return False
+    return True
+
+def process_job(config, job, person):
+        
+    # the command to run
+    _workdir = os.path.join(config.get('dir-root'), config.get('dir-work'), person)
+    _script  = os.path.join(config.get('dir-root'), job.get('file'))            
+    _cmd     = f'''
+    cd {_workdir}
+    bash {_script} {config.get('tarball')}
+    '''
+    
+    # run the command and gather outputs
+    _bash  = Popen('/bin/bash', stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)        
+    _o, _e = _bash.communicate(_cmd.encode('utf-8'))
+    _msg = []
+    _msg += filter(message_filter, _o.decode('utf-8').strip().split('\n'))
+    _msg += filter(message_filter, _e.decode('utf-8').split('\n'))
+    
+    # if there is no output and no errors, consider the result as a pass
+    ret = {}
+    if len(_msg) > 0:
+        alert('Failed')
+        ret['score'] = -int(job.get('deduct'))
+        for _item in _msg:
+            print(_item)
+        question('Wish to handle manually?')
+            
+    else:
+        print(f'pass {_script}')
+    ret['messages'] = _msg
+    return ret
+
+# --------------------------------------------------------------------------------
 
 # start processing timer
 start_time = time.time()
 
 # load user setting
-# TODO: configure file format here
 with open('config.json') as f:
     config = json.load(f)
  
@@ -98,99 +151,46 @@ with open('config.json') as f:
 students = []
 
 # prepare a list of all submitted students
-ls_results, _ = Popen(['ls', config.get('directory-root')],
-                      stdout=PIPE, stderr=PIPE,
-                      encoding='utf8').communicate()
+ls_results, _ = Popen(['ls', os.path.join(config.get('dir-root'), config.get('dir-submissions'))],
+                      stdout=PIPE, stderr=PIPE, encoding='utf8').communicate()
 for item in ls_results.split(): 
     if '@' in item: # only consider kerberos@ad3.ucdavis.edu
         students.append(item)
 
-#testInputFile = config.get('testInputFileName')
-
-# put test input file in a list for partial checking
-#testOutputList = [line.rstrip('\n') for line in open(config.get('testOutputFileName'), 'r')]
-
-#results = []
-#finalResults = []
-#count = 0
-
+# now grading one by one
 for s in students:
 
     # the path of the record file
-    stulog_filename = os.path.join(config.get('directory-work'), s + '.json')
-    stulog = {}
+    filename = os.path.join(config.get('dir-root'),config.get('dir-work'), s + '.json')
+    log = {}
     
-    if reset_workdir(config, s, stulog_filename):
+    if reset_workdir(config, s, filename):
 
-        print('\nworking on: %s' % s)
+        print('\n>> working on student %s <<' % s)
+
+        # step 1, we check the submission time
+        log['check-time'] = time_check(config, s)
         
-        stulog['time-check'] = {}
-        total = time_check(config, s, stulog['time-check'])
-        
-        
+        # step 2, we iterate over all grading scripts
+        for job in config.get('scripts'):
+            name = job.get('file')
+            log[name] = process_job(config, job, s)
 
-    print(stulog)
-    exit()
+        # step 3, save student's record
+        print()
+        json.dumps(log, indent=2)
+        with open(filename, 'w') as outfile:
+            json.dump(log, outfile, indent=2)
+
+    else:        
+        print('>> skip student %s <<' % s)    
     
-    #with open()
+    alert('Done!')
+    question('score')
+    print()
     
-    # total = config.get('maxScore')
-    # if platform.system() ==  'Darwin':
-    #     commands = f'''
-    #     cd {s}
-    #     stat -f "%m" -t "%Y" {config.get('tarFileName')}
-    #     tar xvf {config.get('tarFileName')}
-    #     make all
-    #     make clean
-    #     make all
-    #     '''
-    # else:
-    #     commands = f'''
-    #     cd {s}
-    #     stat -c "%Y" {config.get('tarFileName')}
-    #     tar xvf {config.get('tarFileName')}
-    #     make all
-    #     make clean
-    #     make all
-    #     '''
+    #exit()
     
-
-    # # no multi file means 2 cases
-    # # 1. either the executable requires no input
-    # # 2. or it requires a single input file 
-    # if not (config.get('isMultiFileInput')):
-    #     if testInputFile == '':
-    #         commandsExec = f'''
-    #             cd {s}
-    #             ./{config.get('execFileName')}
-    #             '''
-    #     else:
-    #         commandsExec = f'''
-    #             cd {s}
-    #             ./{config.get('execFileName')} < {testInputFile}
-    #             '''
-    # else:
-    #     maxInFile = config.get('multipleInFile')
-    #     commandString = ""
-    #     if maxInFile != 0:
-    #         # form multiple input commanc strings
-    #         for inFileCount  in range(1, maxInFile + 1):
-    #             commandString = commandString + "./" + config.get('execFileName') + " < ../test" + str(inFileCount) + ".in\n"
-    #         commandsExec = f'''
-    #             cd {s}
-    #             {commandString}
-    #             '''
-    #     else:
-    #         print("No of Max File must be greater than 0")
-    #         exit
-
-    # runExecutable = Popen('/bin/bash', stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
-    # out, err = runExecutable.communicate(commandsExec.encode('utf-8'))
-    # outputsExec = out.decode('utf-8').strip().split('\n')
-    # print(outputsExec)
-    # errorsExec = err.decode('utf-8').split('\n')
-    # errors.append(errorsExec)
-
     # try:
     #     if outputsExec == testOutputList:
     #         outputs.append("Output is expected")
@@ -227,15 +227,5 @@ for s in students:
     #     kerberosID = s.split('@')[0]
     #     csvLine = kerberosID + ", " + str(total)
     #     finalResults.append(csvLine)
-
-# with open(config.get('verboseResultFileName'), 'w+') as f:
-#     for result in results:
-#         f.write(str(result)+'\n')
-#     f.write(f'correct submissions: {str(count)}')
-#     f.write(f'total submissions: {len(students)}')
-
-# with open(config.get('resultsFileName'), 'w+') as f:
-#     for finalResult in finalResults:
-#         f.write(str(finalResult)+'\n')
 
 print("Time to process", len(students), "students was %s seconds" % (time.time() - start_time))

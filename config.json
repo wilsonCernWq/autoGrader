@@ -1,19 +1,34 @@
 {
-    "due-time-stamp": "1581897600",
-    "directory-root": "/home/qwuad/grading/hw2",
-    "directory-work": "/home/qwuad/grading/hw2p1-work",
-    "output-file"   : "hw2p1-progress.json",
-    "tarball-name"  : "hw2p1.tar",
-
-    "max-score": 80,
-    
-    "execFileName": "calculator",
-    "isMultiFileInput": true,
-    "testInputFileName": "",
-    "testOutputFileName": "finalTest.out",
-    "multipleInFile": 9,
-
-    "deductScore": 5,
-    "resultsFileName": "StudentIDScores2.txt",
-    "verboseResultFileName": "results2.txt"
+    "due-time-stamp": "1582001883",
+    "dir-root": "/home/qwuad/grading/hw2",
+    "dir-submissions": "submissions",
+    "dir-work"       : "work/p1",
+    "output" : "hw2p1-progress.json",
+    "tarball": "hw2p1.tar",
+    "scripts": [{
+	"file": "scripts/check-uncompress.sh",
+	"deduct": 1
+    }, {
+	"file": "scripts/check-makefile-p1.sh",
+	"deduct": 1
+    }, {
+	"file": "scripts/check-compilation-p1.sh",
+	"deduct": 10
+    }, {
+	"file": "scripts/copy-tests-p1.sh",
+	"deduct": 0
+    }, {
+	"file": "scripts/check-test1.sh",
+	"deduct": 5
+    }, {
+	"file": "scripts/check-test2.sh",
+	"deduct": 5
+    }, {
+	"file": "scripts/check-test3.sh",
+	"deduct": 5
+    }, {
+	"file": "scripts/check-test4.sh",
+	"deduct": 5
+    }],
+    "max-score": 80    
 }
