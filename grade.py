@@ -1,6 +1,7 @@
 import sys, os, time, platform, json, shutil
 from subprocess import Popen, PIPE
 
+
 def record_message(arr, msg):
     arr.append(msg)
     print(msg)
@@ -127,16 +128,24 @@ def process_job(config, job, person):
     # if there is no output and no errors, consider the result as a pass
     ret = {}
     if len(_msg) > 0:
-        alert('Failed')
-        ret['score'] = -int(job.get('deduct'))
+        ret['deduct'] = -int(job.get('deduct'))
         for _item in _msg:
             print(_item)
-        question('Wish to handle manually?')
-            
+        question('Failed, wish to handle manually?')            
     else:
+        ret['deduct'] = 0
         print(f'pass {_script}')
     ret['messages'] = _msg
     return ret
+
+
+def compute_score(config, person, record):
+    score = int(record['check-time']['adjusted-max-score'])
+    for k, v in record.items():
+        if 'scripts' in k:
+            score += int(v['deduct'])
+    return score
+
 
 # --------------------------------------------------------------------------------
 
@@ -162,12 +171,13 @@ for s in students:
 
     # the path of the record file
     filename = os.path.join(config.get('dir-root'),config.get('dir-work'), s + '.json')
-    log = {}
-    
+
+    # the student has not been graded
     if reset_workdir(config, s, filename):
 
-        print('\n>> working on student %s <<' % s)
-
+        print('>> working on student %s <<' % s)
+        log = {}
+    
         # step 1, we check the submission time
         log['check-time'] = time_check(config, s)
         
@@ -182,11 +192,15 @@ for s in students:
         with open(filename, 'w') as outfile:
             json.dump(log, outfile, indent=2)
 
-    else:        
+    # the student has been graded, thus we may skip
+    else:
+        
+        with open(filename) as f:
+            log = json.load(f)
         print('>> skip student %s <<' % s)    
-    
-    alert('Done!')
-    question('score')
+
+    # check score
+    question(f'Done!, score: {compute_score(config, s, log)}')
     print()
     
     #exit()
