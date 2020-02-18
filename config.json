@@ -7,46 +7,82 @@
   "tarball": "hw2p1.tar",
   "scripts": [
     {
-      "file": "scripts/check-uncompress.sh",
+      "file": "scripts/p1-uncompress.sh",
       "deduct": 5,
       "comment": "cannot decompress your tarball"
     },
     {
-      "file": "scripts/check-makefile-p1.sh",
+      "file": "scripts/p1-makefile.sh",
       "deduct": 5,
-      "comment": "invalid makefile"
+      "comment": "makefile incorrect"
     },
     {
-      "file": "scripts/check-compilation-p1.sh",
+      "file": "scripts/p1-compilation.sh",
       "deduct": 100,
       "comment": "program cannot compile"
     },
     {
-      "file": "scripts/check-compilation-p1.sh",
+      "file": "scripts/p1-warning.sh",
       "deduct": 5,
-      "comment": "program cannot compile"
+      "comment": "program compilation gives warnings"
     },
     {
-      "file": "scripts/copy-tests-p1.sh",
-      "deduct": 0
+      "file": "scripts/p1-unit1.sh",
+      "deduct": 10,
+      "comment": "Aircraft::type() returns a wrong value"
     },
     {
-      "file": "scripts/check-test1.sh",
+      "file": "scripts/p1-unit2.sh",
+      "deduct": 10,
+      "comment": "Aircraft::maxHours() returns a wrong value"
+    },
+    {
+      "file": "scripts/p1-unit3.sh",
+      "deduct": 10,
+      "comment": "Aircraft::numEngines() returns a wrong value"
+    },
+    {
+      "file": "scripts/p1-unit4.sh",
+      "deduct": 10,
+      "comment": "Aircraft::name() returns a wrong value"
+    },
+    {
+      "file": "scripts/p1-unit5.sh",
+      "deduct": 10,
+      "comment": "Aircraft::setHours() should not print"
+    },
+    {
+      "file": "scripts/p1-unit6.sh",
+      "deduct": 10,
+      "comment": "Aircraft::setHours() should be able to assign engines in any order"
+    },
+    {
+      "file": "scripts/p1-unit7.sh",
+      "deduct": 10,
+      "comment": "Aircraft::print() prints a wrong value"
+    },
+    {
+      "file": "scripts/p1-unit8.sh",
+      "deduct": 10,
+      "comment": "Aircraft::printSchedule() returns a wrong value"
+    },
+    {
+      "file": "scripts/p1-test1.sh",
       "deduct": 10,
       "comment": "test1 incompatible"
     },
     {
-      "file": "scripts/check-test2.sh",
+      "file": "scripts/p1-test2.sh",
       "deduct": 10,
       "comment": "test2 incompatible"
     },
     {
-      "file": "scripts/check-test3.sh",
+      "file": "scripts/p1-test3.sh",
       "deduct": 10,
       "comment": "test3 incompatible"
     },
     {
-      "file": "scripts/check-test4.sh",
+      "file": "scripts/p1-test4.sh",
       "deduct": 10,
       "comment": "test4 incompatible"
     }
@@ -54,6 +90,10 @@
   "rubrics": [
     {
       "comment": "typo in some strings",
+      "deduct": 5
+    },
+    {
+      "comment": "incorrect tarball or filenames",
       "deduct": 5
     }
   ],
