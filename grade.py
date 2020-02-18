@@ -110,9 +110,9 @@ def time_check(person): # checking if the submission is over-due
         raise
     
     ret = {}
-    ret['adjusted-max-score'] = int(tot)
-    ret['timestamp'] = t
     ret['messages'] = errs
+    ret['timestamp'] = t
+    ret['adjusted-max-score'] = int(tot)
     return ret
 
 
@@ -183,28 +183,33 @@ def process_job(job, person):
         # there is a default deduction rule
         deduct = int(job.get('deduct'))
         comment = job.get('comment')
-        ret['deduct']   = -deduct
-        ret['comment']  = comment
-
-        # check if we want to apply a rubric
         print_warning(f'Default rubic   = -{deduct}')
-        print_warning(f'....... comment = {comment}')
-        if 'y' in question('Over-Write it?'):
-
+        print_warning(f'        comment = {comment}')
+        if 'y' in question('Discard it?'):
+            ret['deduct']  = 0
+        else:
+            ret['deduct']  = -deduct
+            ret['comment'] = comment
+            
+        # check if we want to apply a rubric
+        if 'y' in question('Apply other rubrics?'):
             ret['rubrics'] = []
-
+            
             # apply existing rubrics
-            while 'y' in question(f'Want to apply preset rubric?'):
-                print_rubrics()
-                ret['rubrics'].append(int(question(f'Select the rubric')))
-
+            print_rubrics()
+            while True:
+                select = question(f'Select a rubric?')
+                if not select:
+                    break
+                ret['rubrics'].append(int(select))
+                            
             # define a new rubric here and apply it
-            while 'y' in question(f'Want to add and apply a new rubric?'):
-                ret['rubrics'].append(add_rubric(int(question(f'  deduct  =')),
-                                                 question(f'  comment =')))
+            while 'y' in question(f'Create a new rubric?'):
+                ret['rubrics'].append(add_rubric(int(question(f'      deduct  =')),
+                                                 question(f'      comment =')))
 
             # adjust the score manually
-            if 'y' in question(f'Want to adjust deduction manually?'):
+            if 'y' in question(f'Manually adjust deduction?'):
                 user = {
                     'deduct': int(question(f'  deduct  =')),
                     'comment': question(f'  comment =')
@@ -215,14 +220,24 @@ def process_job(job, person):
 
 
 def compute_score(person, record):
-    global config
+    global config, rubrics
     score = int(record['check-time']['adjusted-max-score'])
     comment = []
     for k, v in record.items():
         if 'scripts' in k:
+            # apply default judgement
             score += int(v['deduct'])
             if 'comment' in v:
                 comment.append(v['comment'])
+            # check for rubrics
+            if 'rubrics' in v:
+                for r in v['rubrics']:
+                    score += int(rubrics[r]['deduct'])
+                    comment.append(rubrics[r]['comment'])
+            # check for adjustments
+            if 'user' in v:
+                score += int(v['user']['deduct'])
+                comment.append(v['user']['comment'])
     return score, comment
 
 
