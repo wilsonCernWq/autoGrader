@@ -32,6 +32,7 @@ def add_rubric(deduct, comment):
     rubrics.append(r)
     with open('config.json', 'w') as out:
         json.dump(config, out, indent=2)
+    return len(rubrics) - 1
 
 
 def log_message(arr, msg):
@@ -51,24 +52,15 @@ def print_message(msg):
     print('%s%s%s' % ('\033[92m', msg, '\033[0m'))
 
 
-def time_check(person):  # checking if the submission is over-due
-    # user defined variables
-    global config
-    due = int(config['due-time-stamp'])
-    tot = int(config['max-score'])
-    tar = config['tarball']
-    work_dir = os.path.join(config['dir-root'], config['dir-submissions'], person)
-
-    # we need a slightly different command for macos
+def time_stamp(file):
+    # we need a slightly different command for macOS
     if platform.system() == 'Darwin':
         cmd = f'''
-        cd {work_dir}
-        stat -f "%m" -t "%Y" {tar}
+        stat -f "%m" -t "%Y" {file}
         '''
     else:
-        cmd = f'''
-        cd {work_dir}
-        stat -c "%Y" {tar}
+        cmd = f'''        
+        stat -c "%Y" {file}
         '''
 
     # run it
@@ -77,6 +69,19 @@ def time_check(person):  # checking if the submission is over-due
     outs = o.decode('utf-8').strip().split('\n')
     errs = e.decode('utf-8').split('\n')
     t = int(outs[0])
+    return t, outs, errs
+
+
+def time_check(person):  # checking if the submission is over-due
+    # user defined variables
+    global config
+    due = int(config['due-time-stamp'])
+    tot = int(config['max-score'])
+    tar = config['tarball']
+    work_dir = os.path.join(config['dir-root'], config['dir-submissions'], person)
+
+    # check for tarball's submission timestamp
+    t, outs, errs = time_stamp(os.path.join(work_dir, tar))
     hour = 3600
 
     # can update the rubric manually here
@@ -143,11 +148,11 @@ def message_filter(x):  # filter function that removes empty strings
 def process_job(task, person):
     # the command to run
     global config
-    workdir = os.path.join(config.get('dir-root'), config.get('dir-work'), person)
-    script = os.path.join(config.get('dir-root'), task.get('file'))
+    workdir = os.path.join(config['dir-root'], config['dir-work'], person)
+    script = os.path.join(config['dir-root'], task['file'])
     cmd = f'''
     cd {workdir}
-    bash {script} {config.get('tarball')}
+    bash {script} {config['tarball']}
     '''
 
     # run the command and gather outputs
@@ -168,47 +173,89 @@ def process_job(task, person):
     else:
 
         # the script failed
-        print_warning(f'Failed {script} with Errors:')
+        print_warning(f'Failed {task["file"]} with Errors:')
         for _ in msg:
             print(_)
         ret['messages'] = msg
 
         # there is a default deduction rule
-        deduct = int(task.get('deduct'))
-        comment = task.get('comment')
-        print_warning(f'Default rubric  = -{deduct}')
-        print_warning(f'        comment = {comment}')
+        print_message(f'Default rubric: (-{int(task["deduct"])}) {task["comment"]}')
 
-        # check if we should apply it
-        ret['applied'] = 'y' not in question('Discard it?')
+        # check if we should apply the default rubric
+        if ('apply' in task) and bool(task['apply']):
+            # yes apply it
+            ret['applied'] = True
 
-        # check if we want to apply a rubric
-        if 'y' in question('Apply other rubrics?'):
-            ret['rubrics'] = []
-
-            # apply existing rubrics
+        else:
+            # check if we want to apply a rubric
+            print_message('Use a rubric? Available rubrics are:')
             print_rubrics()
+            print_message('Enter "y" to discard the current ')
+            print_message('Enter "n" to cancel the discard')
+            print_message('Enter "l" to list currently applied rubrics')
+            print_message('Enter Integer for existing rubrics')
+            print_message('Enter "a" to add existing rubrics')
+            print_message('Enter "r" to remove existing rubrics')
+            print_message('Enter "m" to edit manual adjustments')
+
+            def fun_write_log(key, value, append):
+                if key not in ret:
+                    ret[key] = []
+                if append:
+                    ret[key].append(value)
+                else:
+                    ret[key] = value
+                return None
+
+            def fun_set_default_rubric(value):
+                return fun_write_log('applied', bool(value), False)
+
+            def fun_add_rubric():
+                i = add_rubric(question(f'\tdeduct:'), question(f'\tcomment:'))
+                return fun_write_log('rubrics', i, True)
+
+            def fun_rm_rubric():
+                i = question(f'  Enter the rubric index to delete')
+                if i.isdigit() and int(i) in ret['rubrics']:
+                    ret['rubrics'].remove(int(i))
+                return None
+
+            def fun_list():
+                print('applied', ret['applied'] if 'applied' in ret else False)
+                print('rubrics', ret['rubrics'] if 'rubrics' in ret else [])
+                print('user', ret['user'] if 'user' in ret else [])
+                return None
+
+            def fun_default(idx):
+                if idx.isdigit():
+                    return fun_write_log('rubrics', int(idx), True)
+                else:
+                    print_warning('Unrecognizable choice. Please choose again.')
+                    return None
+
+            switcher = {
+                'y': lambda: fun_set_default_rubric(False),
+                'n': lambda: fun_set_default_rubric(True),
+                'l': lambda: fun_list(),
+                'a': lambda: fun_add_rubric(),
+                'r': lambda: fun_rm_rubric(),
+                'm': lambda: fun_write_log('user', {
+                        'deduct': int(question(f'\tdeduct:')),
+                        'comment': question(f'\tcomment:')
+                    }, False)
+            }
+
+            # apply it by default, just for convenience
+            ret['applied'] = True
+
             while True:
-                select = question(f'Select a rubric?')
-                if not select:
+                choice = question('Your choice?')
+                if not choice:
                     break
-                ret['rubrics'].append(int(select))
 
-            # define a new rubric here and apply it
-            while 'y' in question(f'Create a new rubric?'):
-                ret['rubrics'].append(add_rubric(int(question(f'      deduct  =')),
-                                                 question(f'      comment =')))
-
-            # adjust the score manually
-            if 'y' in question(f'Manually adjust deduction?'):
-                user = {
-                    'deduct': int(question(f'  deduct  =')),
-                    'comment': question(f'  comment =')
-                }
-                ret['user'] = user
-
-        # pause
-        question('Continue?')
+                # Get the function from switcher dictionary
+                func = switcher.get(choice, lambda: fun_default(choice))
+                func()
 
     return ret
 
@@ -233,17 +280,18 @@ def compute_score(rcd):
             # check for rubrics
             if 'rubrics' in v:
                 for r in v['rubrics']:
-                    score += int(rubrics[r]['deduct'])
+                    score -= int(rubrics[r]['deduct'])
                     comment.append(rubrics[r]['comment'])
             # check for adjustments
             if 'user' in v:
-                score += int(v['user']['deduct'])
+                score -= int(v['user']['deduct'])
                 comment.append(v['user']['comment'])
     return max(score, 0), comment
 
 
-def record(fname, obj, key, value):
+def record(fname, obj, key, value, t):
     obj[key] = value
+    obj[key]['timestamp'] = t
     with open(fname, 'w') as out:
         json.dump(obj, out, indent=2)
 
@@ -267,6 +315,8 @@ for item in results.split():
 
 # now grading one by one
 print()
+s_n = len(students)
+s_i = 0
 for s in students:
 
     # the path of the record file
@@ -280,17 +330,19 @@ for s in students:
         reset_workdir(s)
         log = dict()
 
-    print('>> working on student %s <<' % s)
+    s_i += 1
+    print('>> (%i/%i) working on student %s <<' % (s_i, s_n, s))
 
     # step 1, we check the submission time
     if 'check-time' not in log:
-        record(filename, log, 'check-time', time_check(s))
+        record(filename, log, 'check-time', time_check(s), -1)
 
     # step 2, we iterate over all grading scripts
     for job in config['scripts']:
         name = job['file']
-        if name not in log:
-            record(filename, log, name, process_job(job, s))
+        timestamp, _, _ = time_stamp(os.path.join(config['dir-root'], job['file']))
+        if (name not in log) or ('timestamp' not in log[name]) or (int(log[name]['timestamp']) < timestamp):
+            record(filename, log, name, process_job(job, s), timestamp)
 
     # check score
     # print(json.dumps(log, indent=2))

@@ -9,11 +9,11 @@
     {
       "file": "scripts/p1-uncompress.sh",
       "deduct": 5,
-      "comment": "cannot decompress your tarball"
+      "comment": "incorrect tarball"
     },
     {
       "file": "scripts/p1-makefile.sh",
-      "deduct": 10,
+      "deduct": 5,
       "comment": "makefile incorrect"
     },
     {
@@ -27,74 +27,146 @@
       "comment": "program compilation gives warnings"
     },
     {
+      "file": "scripts/p1-unit1a.sh",
+      "deduct": 5,
+      "comment": "Aircraft::type() has inconsistent behaviors, implying a wrong implementation"
+    },
+    {
+      "file": "scripts/p1-unit2a.sh",
+      "deduct": 5,
+      "comment": "Aircraft::maxHours() has inconsistent behaviors, implying a wrong implementation"
+    },
+    {
+      "file": "scripts/p1-unit3a.sh",
+      "deduct": 5,
+      "comment": "Aircraft::numEngines() has inconsistent behaviors, implying a wrong implementation"
+    },
+    {
+      "file": "scripts/p1-unit4a.sh",
+      "deduct": 5,
+      "comment": "Aircraft::name() has inconsistent behaviors, implying a wrong implementation"
+    },
+    {
       "file": "scripts/p1-unit1.sh",
       "deduct": 5,
-      "comment": "Aircraft::type() returns a wrong value"
+      "comment": "Aircraft::type() returns a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit2.sh",
       "deduct": 5,
-      "comment": "Aircraft::maxHours() returns a wrong value"
+      "comment": "Aircraft::maxHours() returns a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit3.sh",
       "deduct": 5,
-      "comment": "Aircraft::numEngines() returns a wrong value"
+      "comment": "Aircraft::numEngines() returns a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit4.sh",
       "deduct": 5,
-      "comment": "Aircraft::name() returns a wrong value"
+      "comment": "Aircraft::name() returns a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit5.sh",
       "deduct": 5,
-      "comment": "Aircraft::setHours() should not print"
+      "comment": "Aircraft::setHours() should not print",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit6.sh",
       "deduct": 5,
-      "comment": "Aircraft::setHours() should be able to assign engines in any order"
+      "comment": "Aircraft::setHours() should be able to assign engines in any order",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit7.sh",
       "deduct": 5,
-      "comment": "Aircraft::print() prints a wrong value"
+      "comment": "Aircraft::print() prints a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-unit8.sh",
       "deduct": 5,
-      "comment": "Aircraft::printSchedule() returns a wrong value"
+      "comment": "Aircraft::printSchedule() returns a wrong value",
+      "apply": true
     },
     {
       "file": "scripts/p1-test1.sh",
       "deduct": 15,
-      "comment": "test1 incompatible"
+      "comment": "test1 incompatible",
+      "apply": true
     },
     {
       "file": "scripts/p1-test2.sh",
       "deduct": 15,
-      "comment": "test2 incompatible"
+      "comment": "test2 incompatible",
+      "apply": true
     },
     {
       "file": "scripts/p1-test3.sh",
       "deduct": 15,
-      "comment": "test3 incompatible"
+      "comment": "test3 incompatible",
+      "apply": true
     },
     {
       "file": "scripts/p1-test4.sh",
       "deduct": 15,
-      "comment": "test4 incompatible"
+      "comment": "test4 incompatible",
+      "apply": true
     }
   ],
   "rubrics": [
     {
-      "comment": "typo in some strings",
-      "deduct": 5
+      "deduct": 1,
+      "comment": "typo in some strings"
     },
     {
-      "comment": "incorrect tarball or filenames",
-      "deduct": 5
+      "deduct": 1,
+      "comment": "tarball contains a folder"
+    },
+    {
+      "deduct": 10,
+      "comment": "wrong return value to non-void function"
+    },
+    {
+      "deduct": 10,
+      "comment": "delete pointer 'hrs' in destructor while not allocating it in the constructor correspondingly"
+    },
+    {
+      "deduct": 10,
+      "comment": "used delete instead delete[] to delete an array"
+    },
+    {
+      "deduct": 10,
+      "comment": "used free to deallocate memory allocated by the new operator"
+    },
+    {
+      "deduct": 10,
+      "comment": "the Aircraft::name function is not defined"
+    },
+    {
+      "deduct": 10,
+      "comment": "does print in constructors instead of the print function"
+    },
+    {
+      "deduct": 10,
+      "comment": "returns 0 in type() function rather than a proper string"
+    },
+    {
+      "deduct": 1,
+      "comment": "tarball contains a tarball???"
+    },
+    {
+      "deduct": 10,
+      "comment": "should never do things like 'delete this' in any program, the desctructor will do the trick"
+    },
+    {
+      "deduct": 1,
+      "comment": "unnecessary printing in destructor or constructor"
     }
   ],
   "max-score": 100
