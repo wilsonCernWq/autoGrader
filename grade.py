@@ -111,7 +111,7 @@ def time_check(person):  # checking if the submission is over-due
 
     ret = {
         'messages': errs,
-        'timestamp': t,
+        'time': t,
         'adjusted-max-score': int(tot)
     }
     return ret
@@ -128,11 +128,15 @@ def reset_workdir(person):
         shutil.rmtree(dst_dir, True)  # delete the old one
         os.mkdir(dst_dir)  # recreate the new one
         shutil.copy(src, dst)
-    except OSError:
-        print_warning(f'Resetting the directory {dst_dir} failed')
-        raise
+#    except OSError:
+#        print_warning(f'Resetting the directory {dst_dir} failed')
+#        raise # this should not happen, thus raise
+    except FileNotFoundError as err:
+        print_warning(err)
+        return True
     else:
         print(f'>> Successfully reset the directory {dst_dir}')
+        return False
 
 
 def message_filter(x):  # filter function that removes empty strings
@@ -159,8 +163,12 @@ def process_job(task, person):
     bash = Popen('/bin/bash', stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
     o, e = bash.communicate(cmd.encode('utf-8'))
     msg = []
-    msg += filter(message_filter, o.decode('utf-8').strip().split('\n'))
-    msg += filter(message_filter, e.decode('utf-8').split('\n'))
+    try:
+        msg += filter(message_filter, o.decode('utf-8').strip().split('\n'))
+        msg += filter(message_filter, e.decode('utf-8').split('\n'))
+    except UnicodeDecodeError as e:
+        question('Cannot decode output string? Please check manually.')
+        msg.append(str(e))
 
     # if there is no output and no errors, consider the result as a pass
     ret = {}
@@ -323,15 +331,27 @@ for s in students:
     filename = os.path.join(config['dir-root'], config['dir-work'], s + '.json')
 
     # the student has not been graded
+    missing = False
     if os.path.exists(filename):
         with open(filename) as f:
             log = json.load(f)
     else:
-        reset_workdir(s)
+        missing = reset_workdir(s)
         log = dict()
 
     s_i += 1
     print('>> (%i/%i) working on student %s <<' % (s_i, s_n, s))
+
+    # missing submission, we fake the state
+    if missing or (('check-time' in log) and (log['check-time']['time'] == -1)):
+        record(filename, log, 'check-time', {
+            'messages': "submission is missing",
+            'time': -1,
+            'adjusted-max-score': 0
+        }, -1)
+        print()
+        print()
+        continue
 
     # step 1, we check the submission time
     if 'check-time' not in log:
