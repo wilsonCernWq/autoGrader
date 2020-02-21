@@ -1,20 +1,32 @@
-import os, time, platform, json, shutil
+import os, sys, time, platform, json, shutil
 from subprocess import Popen, PIPE
+
+
+def read_config():
+    with open(sys.argv[1]) as read_in:
+        return json.load(read_in)
+
+
+def save_config(obj):
+    with open(sys.argv[1], 'w') as save_out:
+        json.dump(obj, save_out, indent=2)
+
 
 # ------------------------------------------------------------------------------
 # global variables
 # ------------------------------------------------------------------------------
 
+if len(sys.argv) < 2:
+    raise ValueError("please provide a configuration file")
+
 # load user setting
-with open('config.json') as f:
-    config = json.load(f)
-
+config = read_config()
 rubrics = config['rubrics']
-
 
 # ------------------------------------------------------------------------------
 # functions
 # ------------------------------------------------------------------------------
+
 
 def print_rubrics():
     global rubrics
@@ -30,8 +42,7 @@ def add_rubric(deduct, comment):
         'comment': comment
     }
     rubrics.append(r)
-    with open('config.json', 'w') as out:
-        json.dump(config, out, indent=2)
+    save_config(config)
     return len(rubrics) - 1
 
 
