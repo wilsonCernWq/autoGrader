@@ -45,6 +45,9 @@ def compute_score(rcd):
             if 'user' in v:
                 score -= int(v['user']['deduct'])
                 comment.append(v['user']['comment'])
+            # check for messages
+            # if 'messages' in v:
+            #     comment.append('message: ' + ';'.join(v['messages']))
     return max(score, 0), comment
 
 
