@@ -354,7 +354,7 @@ for s in students:
     print('>> (%i/%i) working on student %s <<' % (s_i, s_n, s))
 
     # missing submission, we fake the state
-    if missing or (('check-time' in log) and (log['check-time']['time'] == -1)):
+    if missing or (('check-time' in log) and (log['check-time'].get('time', 0) == -1)):
         record(filename, log, 'check-time', {
             'messages': "submission is missing",
             'time': -1,
